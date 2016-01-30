@@ -13,10 +13,12 @@
   <build_depend>cmake_modules</build_depend>
   <build_depend>lp_solve</build_depend>
   <build_depend>liblpsolve55-dev</build_depend>
-  <build_depend>mumps</build_depend>
+  <build_depend>coinor-libclp-dev</build_depend>
+<!--  <build_depend>mumps</build_depend> -->
 
   <run_depend>euslisp</run_depend>
   <run_depend>lp_solve</run_depend>
   <run_depend>liblpsolve55-dev</run_depend>
-  <run_depend>mumps</run_depend>
+  <run_depend>coinor-libclp-dev</run_depend>
+<!--  <run_depend>mumps</run_depend> -->
 </package>
