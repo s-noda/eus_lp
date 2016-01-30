@@ -5,7 +5,14 @@ cmake_minimum_required(VERSION 2.4.6)
 find_package(catkin COMPONENTS cmake_modules)
 find_package(Boost COMPONENTS thread system REQUIRED)
 
+execute_process(COMMAND cmake -E chdir ${PROJECT_SOURCE_DIR} bash install.sh)
+
+set(LPSOLVE_INCLUDE_DIRS /usr/include/lpsolve)
+set(LPSOLVE_LIBRARY_DIRS /usr/lib/lp_solve)
+set(MUMPS_LIBRARY_DIRS /usr/lib/mumps) ## tmp
+
 include_directories(${Boost_INCLUDE_DIRS})
+include_directories(${LPSOLVE_INCLUDE_DIRS})
 include_directories(${PROJECT_SOURCE_DIR}/src)
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
