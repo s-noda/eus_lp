@@ -2,6 +2,6 @@
 
 (require "eus-lp.l")
 
-(assert (eus_lp::test-all))
+(if (not (eus_lp::test-all)) (throw :eus-lp-test-exception nil))
 
 (exit 1)
