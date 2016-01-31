@@ -10,7 +10,7 @@ execute_process(COMMAND cmake -E chdir ${PROJECT_SOURCE_DIR} bash install.sh)
 set(LPSOLVE_INCLUDE_DIRS /usr/include/lpsolve)
 set(LPSOLVE_LIBRARY_DIRS /usr/lib/lp_solve/liblpsolve55.so)
 set(CLP_INCLUDE_DIRS /usr/include/coin)
-set(CLP_LIBRARY_DIRS /usr/lib/libClp.so)
+set(CLP_LIBRARY_DIRS /usr/lib/libClp.so /usr/lib/libCoinUtils.so.0)
 ## set(MUMPS_LIBRARY_DIRS /usr/lib/libmumps_common.so)
 
 ## include_directories(${Boost_INCLUDE_DIRS})
