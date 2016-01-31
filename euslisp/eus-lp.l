@@ -46,7 +46,22 @@
 ;; Actual values of the variables:
 ;; x1 30
 ;; x2 34
-;; x36.25
+;; x3 6.25
+
+(defun eus_lp::lp-solve
+  (&key
+   (f (instantiate float-vector 1))
+   (x (instantiate float-vector 3))
+   (objective-coeff-vector (float-vector 0 -2.5 -5 -3.4))
+   (ieq-coeff-vector (float-vector 425 400 600))
+   (ieq-coeff-matrix (send (make-matrix 3 4 '((0 2 10 4) (0 6 5 8) (0 7 10 8))) :get-val 'entity))
+   (eq-coeff-vector (instantiate float-vector 0))
+   (eq-coeff-matrix (instantiate float-vector 0))
+   (state-dim (length x))
+   (eq-dim (length eq-coeff-vector))
+   (ieq-dim (length ieq-coeff-vector)))
+  (eus_lp::_lp-solve eq-dim ieq-dim state-dim f x objective-coeff-vector ieq-coeff-vector ieq-coeff-matrix eq-coeff-vector eq-coeff-matrix)
+  x)
 
 (defun eus_lp::clp
   (&key
@@ -69,17 +84,22 @@
   (eus_lp::_clp eq-dim ieq-dim state-dim f x objective-coeff-vector 0 ieq-coeff-matrix dummy dummy state-min-vector state-max-vector ieq-coeff-vector-min ieq-coeff-vector-max)
   x)
 
-(defun eus_lp::lp-solve
-  (&key
-   (f (instantiate float-vector 1))
-   (x (instantiate float-vector (+ 1 3)))
-   (objective-coeff-vector (float-vector 2.5 5 3.4))
-   (ieq-coeff-vector (float-vector 425 400 600))
-   (ieq-coeff-matrix (send (make-matrix 3 4 '((0 2 10 4) (0 6 5 8) (0 7 10 8))) :get-val 'entity))
-   (eq-coeff-vector (instantiate float-vector 0))
-   (eq-coeff-matrix (instantiate float-vector 0))
-   (state-dim (- (length x) 1))
-   (eq-dim (length eq-coeff-vector))
-   (ieq-dim (length ieq-coeff-vector)))
-  (eus_lp::_lp-solve eq-dim ieq-dim state-dim f x objective-coeff-vector ieq-coeff-vector ieq-coeff-matrix eq-coeff-vector eq-coeff-matrix)
-  x)
+(defun eus_lp::test-all
+  nil
+  (let* ((ref-x (float-vector 30 34 6.25))
+	 (ref-f (float-vector 266.25))
+	 (clp-x (instantiate float-vector 3))
+	 (clp-f (instantiate float-vector 1))
+	 (lpsolve-x (instantiate float-vector 3))
+	 (lpsolve-f (instantiate float-vector 1))
+	 (clp-tm) (lpsolve-tm))
+    (setq clp-tm (bench2 (eus_lp::clp :f clp-f :x clp-x)))
+    (warning-message 6 "[eus_lp::clp] ~A(at ~A), diff: ~A(~A), time: ~A~%"
+		     (aref clp-f 0) clp-x
+		     (norm (v+ clp-f ref-f)) (norm (v- clp-x ref-x)) clp-tm)
+    (setq lpsolve-tm (bench2 (eus_lp::lp-solve :f lpsolve-f :x lpsolve-x)))
+    (warning-message 6 "[eus_lp::lpsolve] ~A(at ~A), diff: ~A(~A), time: ~A~%"
+		     (aref lpsolve-f 0) lpsolve-x
+		     (norm (v+ lpsolve-f ref-f)) (norm (v- lpsolve-x ref-x))
+		     lpsolve-tm)
+    ))
