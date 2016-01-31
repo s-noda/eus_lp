@@ -23,9 +23,28 @@ extern "C" {
     return get_Norig_columns(lp);
   }
   //
-  int eus_lp_clp(double* f, double* x, int element_size, int* rowindices, int* colindices, double* elements, double* collower, double* colupper, double* coeff, double* rowlower, double* rowupper) {
+  // int eus_lp_clp(double* f, double* x, int element_size, int* rowindices, int* colindices, double* elements, double* collower, double* colupper, double* coeff, double* rowlower, double* rowupper) {
+  int eus_lp_clp(int eq_dim, int ieq_dim, int state_dim, double* f, double* x, int element_size, double* elements, long* _rowindices, long* _colindices, double* collower, double* colupper, double* coeff, double* rowlower, double* rowupper) {
+    if ( ! _rowindices || ! _colindices ) element_size = (eq_dim + ieq_dim) * state_dim;
     ClpSimplex model;
+    int rowindices[element_size];
+    int colindices[element_size];
     const CoinPackedMatrix matrix(false, rowindices, colindices, elements, 9);
+    //
+    if ( ! _rowindices || ! _colindices ) {
+      for ( int row = 0; row<eq_dim+ieq_dim ; row++ ) { // not good
+	for ( int col = 0 ; col<state_dim ; col++ ) {
+	  rowindices[row * state_dim + col] = row;
+	  colindices[row * state_dim + col] = col;
+	}
+      }
+    } else {
+      for ( int i=0 ; i<element_size ; i++ ) {
+	rowindices[i] = _rowindices[i];
+	colindices[i] = _colindices[i];
+      }
+    }
+    //
     model.loadProblem(matrix, collower, colupper, coeff, rowlower, rowupper);
     model.createStatus();
     model.primal();
