@@ -30,5 +30,5 @@ TARGET_LINK_LIBRARIES(eus_lpsolve_test ${LPSOLVE_LIBRARY_DIRS})
 add_executable(eus_clp_test src/clp_test.cpp)
 TARGET_LINK_LIBRARIES(eus_clp_test ${CLP_LIBRARY_DIRS})
 
-# add_library(eus_ompl SHARED src/eus_ompl_lib.cpp)
-# TARGET_LINK_LIBRARIES(eus_ompl ${OMPL_LIBRARIES} ${Boost_LIBRARIES})
+add_library(eus_lp SHARED src/eus_lp.cpp)
+TARGET_LINK_LIBRARIES(eus_lp ${LPSOLVE_LIBRARY_DIRS} ${CLP_LIBRARY_DIRS})
