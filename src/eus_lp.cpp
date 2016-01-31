@@ -24,15 +24,21 @@ extern "C" {
     lp = make_lp(eq_dim+ieq_dim, state_dim);
     set_obj_fn (lp, objective);
     for(int i=0; i<ieq_dim; i++) {
-      add_constraint( lp, ieq_matrix + i*state_dim, LE, ieq_coeff[i] );
+      add_constraint( lp, ieq_matrix + i*(state_dim+1), LE, ieq_coeff[i] );
     }
     for(int i=0; i<eq_dim; i++) {
-      add_constraint( lp, eq_matrix + i*state_dim, EQ, eq_coeff[i] );
+      add_constraint( lp, eq_matrix + i*(state_dim+1), EQ, eq_coeff[i] );
     }
     set_verbose(lp, 0);
     set_presolve(lp, PRESOLVE_ROWS | PRESOLVE_COLS | PRESOLVE_LINDEP, get_presolveloops(lp));
     solve(lp);
     f[0] = get_objective(lp);
+    //
+    double row0 = get_Norig_rows(lp);
+    for(int i = 0; i <= state_dim; i++) {
+      x[i] = get_var_primalresult(lp, row0 + i + 1);
+    }
+    //
     return get_Norig_columns(lp);
   }
   //

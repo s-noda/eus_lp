@@ -12,7 +12,7 @@
 // x2                             34
 // x3                           6.25
 
-#define eq_dim 1
+#define eq_dim 0
 #define ieq_dim 3
 #define state_dim 3
 
@@ -23,7 +23,7 @@ int main( ) {
   double ieq_coeff[ieq_dim] = {425, 400, 600};
   double ieq_matrix[ieq_dim][state_dim+1]
     = {{0,2,10,4}, {0,6,5,8}, {0, 7, 10, 8}};
-  double eq_coeff[eq_dim] = {30};
+  double eq_coeff[eq_dim]; // = {30};
   double eq_matrix[eq_dim][state_dim+1];
   //
   lprec *lp;
