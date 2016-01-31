@@ -1,5 +1,9 @@
 #!/usr/bin/env roseus
 
+(if (ros::rospack-find "eus_qpoases")
+    (require "package://eus_qpoases/euslisp/eus-qpoases.l")
+  (warning-message 1 "eus_qpoases missing~%"))
+
 (if (not (find-package "EUS_LP")) (make-package "EUS_LP"))
 
 (defvar eus_lp::*plugin*
@@ -84,6 +88,17 @@
   (eus_lp::_clp eq-dim ieq-dim state-dim f x objective-coeff-vector 0 ieq-coeff-matrix dummy dummy state-min-vector state-max-vector ieq-coeff-vector-min ieq-coeff-vector-max)
   x)
 
+(defun eus_lp::qpoases
+  (&key
+   (inf 1e+10)
+   (state-min-vector (float-vector 0 0 0))
+   (state-max-vector (float-vector inf inf inf))
+   (objective-coeff-vector (float-vector -2.5 -5 -3.4))
+   (ieq-coeff-vector-max (float-vector 425 400 600))
+   (ieq-coeff-matrix (make-matrix 3 3 '((2 10 4) (6 5 8) (7 10 8))))
+   )
+  (solve-qpoases-lp :eval-coeff-vector objective-coeff-vector :state-min-vector state-min-vector :state-max-vector state-max-vector :inequality-matrix ieq-coeff-matrix :inequality-max-vector ieq-coeff-vector-max))
+
 (defun eus_lp::test-all
   nil
   (let* ((ref-x (float-vector 30 34 6.25))
@@ -92,15 +107,22 @@
 	 (clp-f (instantiate float-vector 1))
 	 (lpsolve-x (instantiate float-vector 3))
 	 (lpsolve-f (instantiate float-vector 1))
-	 (clp-tm) (lpsolve-tm))
-    (setq clp-tm (bench2 (eus_lp::clp :f clp-f :x clp-x)))
-    (warning-message 6 "[eus_lp::clp] ~A(at ~A), diff: ~A(~A), time: ~A~%"
-		     (aref clp-f 0) clp-x
-		     (norm (v+ clp-f ref-f)) (norm (v- clp-x ref-x)) clp-tm)
+	 (qp-x)
+	 (clp-tm) (lpsolve-tm) (qp-tm))
     (setq lpsolve-tm (bench2 (eus_lp::lp-solve :f lpsolve-f :x lpsolve-x)))
     (warning-message 6 "[eus_lp::lpsolve] ~A(at ~A), diff: ~A(~A), time: ~A~%"
 		     (aref lpsolve-f 0) lpsolve-x
 		     (norm (v+ lpsolve-f ref-f)) (norm (v- lpsolve-x ref-x))
 		     lpsolve-tm)
+    ;;
+    (setq clp-tm (bench2 (eus_lp::clp :f clp-f :x clp-x)))
+    (warning-message 6 "[eus_lp::clp] ~A(at ~A), diff: ~A(~A), time: ~A~%"
+		     (aref clp-f 0) clp-x
+		     (norm (v+ clp-f ref-f)) (norm (v- clp-x ref-x)) clp-tm)
+    ;;
+    (setq qp-tm (bench2 (setq qp-x (eus_lp::qpoases))))
+    (warning-message 6 "[eus_lp::qpoases] ~A(at ~A), diff: ~A(~A), time: ~A~%"
+		     nil qp-x
+		     nil (norm (v- qp-x ref-x)) qp-tm)
     t
     ))
