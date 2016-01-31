@@ -35,8 +35,8 @@ int main( int argc, char **argv)
   model.primal();
   //
   const double *colSolution = model.getColSolution();
-  int ncol = model.numberColumns();
-  for(int i=0; i<ncol; i++ ) {
+  // int ncol = model.numberColumns();
+  for(int i=0; i<3; i++ ) {
     std::cout << model.getColumnName(i)
               << ": " << colSolution[i] << std::endl;
   }

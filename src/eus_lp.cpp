@@ -83,9 +83,9 @@ extern "C" {
     model.primal();
     // std::cout << " -- ouput results" << std::endl;
     const double *colSolution = model.getColSolution();
-    int ncol = model.numberColumns();
-    for(int i=0; i<ncol; i++ ) x[i] = colSolution[i];
+    // int ncol = model.numberColumns();
+    for(int i=0; i<state_dim; i++ ) x[i] = colSolution[i];
     f[0] = model.getObjValue();
-    return ncol;
+    return 0;
   }
 }
