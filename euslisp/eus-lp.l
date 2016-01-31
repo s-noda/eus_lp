@@ -1,4 +1,4 @@
-#!usr/bin/env roseus
+#!/usr/bin/env roseus
 
 (if (not (find-package "EUS_LP")) (make-package "EUS_LP"))
 
@@ -102,4 +102,5 @@
 		     (aref lpsolve-f 0) lpsolve-x
 		     (norm (v+ lpsolve-f ref-f)) (norm (v- lpsolve-x ref-x))
 		     lpsolve-tm)
+    t
     ))
