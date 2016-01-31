@@ -31,10 +31,55 @@
         (library_search (unix:getenv "LD_LIBRARY_PATH"))))))
 
 ;; int eus_lp_lpsolve(int eq_dim, int ieq_dim, int state_dim, double* f, double* x, double* objective, double* ieq_coeff, double* ieq_matrix, double* eq_coeff, double* eq_matrix)
-;; ;; int eus_lp_clp(double* f, double* x, int element_size, int* rowindices, int* colindices, double* elements, double* collower, double* colupper, double* coeff, double* rowlower, double* rowupper
-;;  int eus_lp_clp(int eq_dim, int ieq_dim, int state_dim, double* f, double* x, int element_size, double* elements, long* _rowindices, long* _colindices, double* collower, double* colupper, double* coeff, double* rowlower, double* rowupper) {
+;; int eus_lp_clp(int eq_dim, int ieq_dim, int state_dim, double* f, double* x, double* coeff, int _element_size, double* elements, long* _rowindices, long* _colindices, double* collower, double* colupper, double* rowlower, double* rowupper) {
 
 
 (defforeign eus_lp::_lp-solve eus_lp::*plugin* "eus_lp_lpsolve" (:integer :integer :integer :string :string :string :string :string :string :string) :integer)
-(defforeign eus_lp::_clp eus_lp::*plugin* "eus_lp_clp" (:integer :integer :integer :string :string :integer :string :string :string :string :string :string :string :string) :integer)
+(defforeign eus_lp::_clp eus_lp::*plugin* "eus_lp_clp" (:integer :integer :integer :string :string :string :integer :string :string :string :string :string :string :string) :integer)
 
+;; max: 2.5 x1 + 5 x2 + 3.4 x3;
+;; C1: 2 x1 + 10 x2 + 4 x3 <= 425;
+;; C2: 6 x1 + 5 x2 + 8 x3 <= 400;
+;; C3: 7 x1 + 10 x2 + 8 x3 <= 600;
+;;
+;; Value of objective function: 266.25
+;; Actual values of the variables:
+;; x1 30
+;; x2 34
+;; x36.25
+
+(defun eus_lp::clp
+  (&key
+   (inf 1e+10)
+   (f (instantiate float-vector 1))
+   (x (instantiate float-vector 3))
+   (state-min-vector (float-vector 0 0 0))
+   (state-max-vector (float-vector inf inf inf))
+   (objective-coeff-vector (float-vector -2.5 -5 -3.4))
+   (ieq-coeff-vector-max (float-vector 425 400 600))
+   (ieq-coeff-vector-min (float-vector (* -1 inf) (* -1 inf) (* -1 inf)))
+   (ieq-coeff-matrix (send (make-matrix 3 3 '((2 10 4) (6 5 8) (7 10 8))) :get-val 'entity))
+   (eq-coeff-vector (instantiate float-vector 0))
+   (eq-coeff-matrix (instantiate float-vector 0))
+   (state-dim (length x))
+   (eq-dim (length eq-coeff-vector))
+   (ieq-dim (length ieq-coeff-vector-min))
+   (dummy (instantiate integer-vector 0))
+   )
+  (eus_lp::_clp eq-dim ieq-dim state-dim f x objective-coeff-vector 0 ieq-coeff-matrix dummy dummy state-min-vector state-max-vector ieq-coeff-vector-min ieq-coeff-vector-max)
+  x)
+
+(defun eus_lp::lp-solve
+  (&key
+   (f (instantiate float-vector 1))
+   (x (instantiate float-vector (+ 1 3)))
+   (objective-coeff-vector (float-vector 2.5 5 3.4))
+   (ieq-coeff-vector (float-vector 425 400 600))
+   (ieq-coeff-matrix (send (make-matrix 3 4 '((0 2 10 4) (0 6 5 8) (0 7 10 8))) :get-val 'entity))
+   (eq-coeff-vector (instantiate float-vector 0))
+   (eq-coeff-matrix (instantiate float-vector 0))
+   (state-dim (- (length x) 1))
+   (eq-dim (length eq-coeff-vector))
+   (ieq-dim (length ieq-coeff-vector)))
+  (eus_lp::_lp-solve eq-dim ieq-dim state-dim f x objective-coeff-vector ieq-coeff-vector ieq-coeff-matrix eq-coeff-vector eq-coeff-matrix)
+  x)
